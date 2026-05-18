@@ -27,8 +27,50 @@
 	unhealthy_request_count 200
 }
 
+# OpenClaw Daytona preview gateway. This listener is intended for Railway
+# private networking only. It preserves OpenClaw auth while adding Daytona
+# preview auth for the upstream request.
+:{$OPENCLAW_GATEWAY_PORT:18789} {
+	log {
+		format json
+	}
+
+	@authorized header Authorization "Bearer {$OPENCLAW_GATEWAY_TOKEN:openclaw-proxy-not-configured}"
+	handle @authorized {
+		reverse_proxy {$DAYTONA_GATEWAY_PREVIEW_URL:http://127.0.0.1:9} {
+			header_up Host {upstream_hostport}
+			header_up -x-daytona-preview-token
+			header_up x-daytona-preview-token {$DAYTONA_PREVIEW_TOKEN:openclaw-proxy-not-configured}
+		}
+	}
+
+	handle {
+		respond "unauthorized" 401
+	}
+}
+
+# OpenClaw agents metadata sidecar for chat roster discovery.
+:{$OPENCLAW_METADATA_PORT:18790} {
+	log {
+		format json
+	}
+
+	@authorized header Authorization "Bearer {$OPENCLAW_GATEWAY_TOKEN:openclaw-proxy-not-configured}"
+	handle @authorized {
+		reverse_proxy {$DAYTONA_METADATA_PREVIEW_URL:http://127.0.0.1:9} {
+			header_up Host {upstream_hostport}
+			header_up -x-daytona-preview-token
+			header_up x-daytona-preview-token {$DAYTONA_PREVIEW_TOKEN:openclaw-proxy-not-configured}
+		}
+	}
+
+	handle {
+		respond "unauthorized" 401
+	}
+}
+
 # site block, listens on the $PORT environment variable, automatically assigned by railway
-:{$PORT} {
+:{$PORT:3000} {
 	# access logs
 	log {
 		format json # set access log format to json mode
@@ -36,49 +78,49 @@
 
 	handle /agent/* {
 		reverse_proxy {
-		dynamic a {
-			name {$BACKEND_DOMAIN}
-			port {$BACKEND_PORT}
-			refresh 1s
-			dial_timeout 30s
-			versions ipv4 ipv6
-		}
+			dynamic a {
+				name {$BACKEND_DOMAIN}
+				port {$BACKEND_PORT}
+				refresh 1s
+				dial_timeout 30s
+				versions ipv4 ipv6
+			}
 
-		import lb_settings
-		import passive_health_checks
-		header_up Host {upstream_hostport}
+			import lb_settings
+			import passive_health_checks
+			header_up Host {upstream_hostport}
 		}
 	}
 
 	handle_path {$BACKEND_PATH:/api}/* {
 		reverse_proxy {
-		dynamic a {
-			name {$BACKEND_DOMAIN}
-			port {$BACKEND_PORT}
-			refresh 1s
-			dial_timeout 30s
-			versions ipv4 ipv6
-		}
+			dynamic a {
+				name {$BACKEND_DOMAIN}
+				port {$BACKEND_PORT}
+				refresh 1s
+				dial_timeout 30s
+				versions ipv4 ipv6
+			}
 
-		import lb_settings
-		import passive_health_checks
-		header_up Host {upstream_hostport}
+			import lb_settings
+			import passive_health_checks
+			header_up Host {upstream_hostport}
 		}
 	}
 
 	handle {
 		reverse_proxy {
-		dynamic a {
-			name {$FRONTEND_DOMAIN}
-			port {$FRONTEND_PORT}
-			refresh 1s
-			dial_timeout 30s
-			versions ipv4 ipv6
-		}
+			dynamic a {
+				name {$FRONTEND_DOMAIN}
+				port {$FRONTEND_PORT}
+				refresh 1s
+				dial_timeout 30s
+				versions ipv4 ipv6
+			}
 
-		import lb_settings
-		import passive_health_checks
-		header_up Host {upstream_hostport}
+			import lb_settings
+			import passive_health_checks
+			header_up Host {upstream_hostport}
 		}
 	}
 }

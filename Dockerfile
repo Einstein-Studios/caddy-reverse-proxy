@@ -4,9 +4,10 @@ WORKDIR /app
 
 COPY Caddyfile ./
 
-COPY --chmod=755 entrypoint.sh ./
+COPY entrypoint.sh ./
 
 RUN caddy fmt --overwrite Caddyfile
+RUN chmod 755 entrypoint.sh
 
 ENTRYPOINT ["/bin/sh"]
 

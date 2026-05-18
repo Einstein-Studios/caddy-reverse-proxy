@@ -2,6 +2,10 @@
 
 **Combine your separate frontend and backend services into one domain!**
 
+This image can also run an OpenClaw Daytona preview proxy for Studio OS. The
+OpenClaw listeners are intended for Railway private networking only and let
+Studio OS reach a Daytona sandbox without Tailscale.
+
 ### [View the example public project here](https://railway.app/project/35d8d571-4313-4049-9699-4e7db7f02a2f) - Utilizes sleeping frontend and backend services with wake via the private network
 
 Access the frontend from `/*` and access the backend from `/api/*` on the same domain
@@ -27,6 +31,69 @@ FRONTEND_PORT = ${{Frontend.PORT}}
 BACKEND_DOMAIN = ${{Backend.RAILWAY_PRIVATE_DOMAIN}}
 BACKEND_PORT = ${{Backend.PORT}}
 ```
+
+## OpenClaw Daytona preview proxy
+
+Use this mode when Studio OS needs to connect to a no-Tailscale Daytona sandbox
+through Daytona preview URLs. Caddy listens on private ports for the OpenClaw
+gateway and metadata sidecar, validates the Studio OS gateway bearer token, and
+injects the Daytona preview token only on the upstream request.
+
+The proxy exposes:
+
+```text
+http://<caddy-service>.railway.internal:18789 -> Daytona gateway preview
+http://<caddy-service>.railway.internal:18790 -> Daytona metadata preview
+```
+
+Required Railway variables for the Caddy proxy service:
+
+```env
+DAYTONA_GATEWAY_PREVIEW_URL=https://18789-<sandbox-id>.daytonaproxy01.net
+DAYTONA_METADATA_PREVIEW_URL=https://18790-<sandbox-id>.daytonaproxy01.net
+DAYTONA_PREVIEW_TOKEN=<daytona preview token>
+OPENCLAW_GATEWAY_TOKEN=<same token used by Daytona and Studio OS>
+OPENCLAW_GATEWAY_PORT=18789
+OPENCLAW_METADATA_PORT=18790
+```
+
+If any Daytona/OpenClaw proxy variable is set, all required OpenClaw proxy
+variables must be present or the container exits during startup. This prevents a
+half-configured proxy from starting.
+
+Studio OS API should use the Railway-private Caddy service URL:
+
+```env
+CHAT_VIA_GATEWAY=true
+GATEWAY_URL=http://<caddy-service>.railway.internal:18789
+OPENCLAW_GATEWAY_URL=http://<caddy-service>.railway.internal:18789
+OPENCLAW_METADATA_URL=http://<caddy-service>.railway.internal:18790
+GATEWAY_TOKEN=<same OPENCLAW_GATEWAY_TOKEN>
+OPENCLAW_GATEWAY_API_KEY=<same OPENCLAW_GATEWAY_TOKEN>
+```
+
+After pairing Studio OS with the Daytona sandbox, also copy the `make pair`
+device values into the Studio OS API environment:
+
+```env
+OPENCLAW_DEVICE_ID=<from make pair>
+OPENCLAW_DEVICE_TOKEN=<from make pair>
+OPENCLAW_DEVICE_PUBLIC_KEY=<from make pair>
+OPENCLAW_DEVICE_PRIVATE_SEED=<from make pair>
+```
+
+### OpenClaw security notes
+
+- Do not expose ports `18789` or `18790` through Railway public networking or
+  TCP proxy. They should only be reachable through Railway private networking.
+- Keep `DAYTONA_PREVIEW_TOKEN` only in this Caddy proxy service. Do not pass it
+  to Studio OS, the browser, or application logs.
+- Caddy preserves the Studio OS `Authorization` header so OpenClaw gateway and
+  device pairing auth still run inside Daytona.
+- Caddy removes any caller-supplied `x-daytona-preview-token` before injecting
+  the configured Daytona preview token.
+- A separate private OpenClaw proxy service is recommended if your existing
+  Caddy service is also the public web/API edge.
 
 **Relevant Caddy documentation:**
 
