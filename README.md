@@ -37,7 +37,9 @@ BACKEND_PORT = ${{Backend.PORT}}
 Use this mode when Studio OS needs to connect to a no-Tailscale Daytona sandbox
 through Daytona preview URLs. Caddy listens on private ports for the OpenClaw
 gateway and metadata sidecar, validates the Studio OS gateway bearer token, and
-injects the Daytona preview token only on the upstream request.
+injects the Daytona preview token only on the upstream request. The token is sent
+as both Daytona's preview header and `DAYTONA_SANDBOX_AUTH_KEY` query parameter
+because Daytona preview authentication may require either form.
 
 The proxy exposes:
 
@@ -88,6 +90,8 @@ OPENCLAW_DEVICE_PRIVATE_SEED=<from make pair>
   TCP proxy. They should only be reachable through Railway private networking.
 - Keep `DAYTONA_PREVIEW_TOKEN` only in this Caddy proxy service. Do not pass it
   to Studio OS, the browser, or application logs.
+- The OpenClaw private listeners intentionally do not define access logs because
+  the upstream request includes the Daytona preview token as a query parameter.
 - Caddy preserves the Studio OS `Authorization` header so OpenClaw gateway and
   device pairing auth still run inside Daytona.
 - Caddy removes any caller-supplied `x-daytona-preview-token` before injecting

@@ -31,12 +31,9 @@
 # private networking only. It preserves OpenClaw auth while adding Daytona
 # preview auth for the upstream request.
 :{$OPENCLAW_GATEWAY_PORT:18789} {
-	log {
-		format json
-	}
-
 	@authorized header Authorization "Bearer {$OPENCLAW_GATEWAY_TOKEN:openclaw-proxy-not-configured}"
 	handle @authorized {
+		uri query +DAYTONA_SANDBOX_AUTH_KEY {$DAYTONA_PREVIEW_TOKEN:openclaw-proxy-not-configured}
 		reverse_proxy {$DAYTONA_GATEWAY_PREVIEW_URL:http://127.0.0.1:9} {
 			header_up Host {upstream_hostport}
 			header_up -x-daytona-preview-token
@@ -51,12 +48,9 @@
 
 # OpenClaw agents metadata sidecar for chat roster discovery.
 :{$OPENCLAW_METADATA_PORT:18790} {
-	log {
-		format json
-	}
-
 	@authorized header Authorization "Bearer {$OPENCLAW_GATEWAY_TOKEN:openclaw-proxy-not-configured}"
 	handle @authorized {
+		uri query +DAYTONA_SANDBOX_AUTH_KEY {$DAYTONA_PREVIEW_TOKEN:openclaw-proxy-not-configured}
 		reverse_proxy {$DAYTONA_METADATA_PREVIEW_URL:http://127.0.0.1:9} {
 			header_up Host {upstream_hostport}
 			header_up -x-daytona-preview-token
