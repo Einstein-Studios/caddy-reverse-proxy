@@ -33,11 +33,11 @@
 :{$OPENCLAW_GATEWAY_PORT:18789} {
 	@authorized header Authorization "Bearer {$OPENCLAW_GATEWAY_TOKEN:openclaw-proxy-not-configured}"
 	handle @authorized {
-		uri query +DAYTONA_SANDBOX_AUTH_KEY {$DAYTONA_PREVIEW_TOKEN:openclaw-proxy-not-configured}
+		uri query +DAYTONA_SANDBOX_AUTH_KEY {$DAYTONA_GATEWAY_PREVIEW_TOKEN:openclaw-proxy-not-configured}
 		reverse_proxy {$DAYTONA_GATEWAY_PREVIEW_URL:http://127.0.0.1:9} {
 			header_up Host {upstream_hostport}
 			header_up -x-daytona-preview-token
-			header_up x-daytona-preview-token {$DAYTONA_PREVIEW_TOKEN:openclaw-proxy-not-configured}
+			header_up x-daytona-preview-token {$DAYTONA_GATEWAY_PREVIEW_TOKEN:openclaw-proxy-not-configured}
 		}
 	}
 
@@ -50,11 +50,11 @@
 :{$OPENCLAW_METADATA_PORT:18790} {
 	@authorized header Authorization "Bearer {$OPENCLAW_GATEWAY_TOKEN:openclaw-proxy-not-configured}"
 	handle @authorized {
-		uri query +DAYTONA_SANDBOX_AUTH_KEY {$DAYTONA_PREVIEW_TOKEN:openclaw-proxy-not-configured}
+		uri query +DAYTONA_SANDBOX_AUTH_KEY {$DAYTONA_METADATA_PREVIEW_TOKEN:openclaw-proxy-not-configured}
 		reverse_proxy {$DAYTONA_METADATA_PREVIEW_URL:http://127.0.0.1:9} {
 			header_up Host {upstream_hostport}
 			header_up -x-daytona-preview-token
-			header_up x-daytona-preview-token {$DAYTONA_PREVIEW_TOKEN:openclaw-proxy-not-configured}
+			header_up x-daytona-preview-token {$DAYTONA_METADATA_PREVIEW_TOKEN:openclaw-proxy-not-configured}
 		}
 	}
 

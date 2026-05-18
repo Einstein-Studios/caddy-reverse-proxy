@@ -59,6 +59,14 @@ OPENCLAW_GATEWAY_PORT=18789
 OPENCLAW_METADATA_PORT=18790
 ```
 
+If Daytona returns different preview tokens for each port, use these instead of
+the shared `DAYTONA_PREVIEW_TOKEN`:
+
+```env
+DAYTONA_GATEWAY_PREVIEW_TOKEN=<preview token for port 18789>
+DAYTONA_METADATA_PREVIEW_TOKEN=<preview token for port 18790>
+```
+
 If any Daytona/OpenClaw proxy variable is set, all required OpenClaw proxy
 variables must be present or the container exits during startup. This prevents a
 half-configured proxy from starting.
@@ -67,10 +75,8 @@ Studio OS API should use the Railway-private Caddy service URL:
 
 ```env
 CHAT_VIA_GATEWAY=true
-GATEWAY_URL=http://<caddy-service>.railway.internal:18789
 OPENCLAW_GATEWAY_URL=http://<caddy-service>.railway.internal:18789
 OPENCLAW_METADATA_URL=http://<caddy-service>.railway.internal:18790
-GATEWAY_TOKEN=<same OPENCLAW_GATEWAY_TOKEN>
 OPENCLAW_GATEWAY_API_KEY=<same OPENCLAW_GATEWAY_TOKEN>
 ```
 
@@ -88,7 +94,7 @@ OPENCLAW_DEVICE_PRIVATE_SEED=<from make pair>
 
 - Do not expose ports `18789` or `18790` through Railway public networking or
   TCP proxy. They should only be reachable through Railway private networking.
-- Keep `DAYTONA_PREVIEW_TOKEN` only in this Caddy proxy service. Do not pass it
+- Keep Daytona preview tokens only in this Caddy proxy service. Do not pass them
   to Studio OS, the browser, or application logs.
 - The OpenClaw private listeners intentionally do not define access logs because
   the upstream request includes the Daytona preview token as a query parameter.
