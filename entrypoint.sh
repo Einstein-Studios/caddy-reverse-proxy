@@ -42,12 +42,18 @@ export BACKEND_HOST="${BACKEND_HOST:-127.0.0.1:9}"
 export BACKEND_DOMAIN=${BACKEND_DOMAIN:-${BACKEND_HOST%:*}}
 export BACKEND_PORT=${BACKEND_PORT:-${BACKEND_HOST##*:}}
 
+export COLLAB_HOST="${COLLAB_HOST:-127.0.0.1:9}"
+export COLLAB_DOMAIN=${COLLAB_DOMAIN:-${COLLAB_HOST%:*}}
+export COLLAB_PORT=${COLLAB_PORT:-${COLLAB_HOST##*:}}
+
 # strip https:// or https:// from domain if necessary
 FRONTEND_DOMAIN=${FRONTEND_DOMAIN##*://}
 BACKEND_DOMAIN=${BACKEND_DOMAIN##*://}
+COLLAB_DOMAIN=${COLLAB_DOMAIN##*://}
 
 echo using frontend: ${FRONTEND_DOMAIN} with port: ${FRONTEND_PORT}
 echo using backend: ${BACKEND_DOMAIN} with port: ${BACKEND_PORT}
+echo using collab: ${COLLAB_DOMAIN} with port: ${COLLAB_PORT}
 if [ "$OPENCLAW_CONFIGURED" = "1" ]; then
 	echo using openclaw gateway preview: ${DAYTONA_GATEWAY_PREVIEW_URL}
 	echo using openclaw metadata preview: ${DAYTONA_METADATA_PREVIEW_URL}
