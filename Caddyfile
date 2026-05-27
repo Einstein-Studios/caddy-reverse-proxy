@@ -102,7 +102,7 @@
 		}
 	}
 
-	handle {$BACKEND_PATH:/api}/* {
+	handle_path {$BACKEND_PATH:/api}/* {
 		reverse_proxy {
 			dynamic a {
 				name {$BACKEND_DOMAIN}
