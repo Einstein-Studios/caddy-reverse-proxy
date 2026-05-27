@@ -48,6 +48,16 @@ http://<caddy-service>.railway.internal:18789 -> Daytona gateway preview
 http://<caddy-service>.railway.internal:18790 -> Daytona metadata preview
 ```
 
+The public site listener can also expose the Railway-hosted model router at a
+narrow Daytona-reachable path:
+
+```text
+https://studio.vegapunk-egghead.com/openclaw-model-router/* -> daytona-openclaw.railway.internal:18791
+```
+
+The model router validates `OPENCLAW_MODEL_ROUTER_TOKEN` itself. Keep that token
+out of browser code and pass it only to Studio OS API/Daytona VM env.
+
 Required Railway variables for the Caddy proxy service:
 
 ```env
@@ -57,6 +67,13 @@ DAYTONA_PREVIEW_TOKEN=<daytona preview token>
 OPENCLAW_GATEWAY_TOKEN=<same token used by Daytona and Studio OS>
 OPENCLAW_GATEWAY_PORT=18789
 OPENCLAW_METADATA_PORT=18790
+```
+
+Optional model-router route variables:
+
+```env
+OPENCLAW_MODEL_ROUTER_DOMAIN=daytona-openclaw.railway.internal
+OPENCLAW_MODEL_ROUTER_PORT=18791
 ```
 
 If Daytona returns different preview tokens for each port, use these instead of

@@ -70,6 +70,25 @@
 		format json # set access log format to json mode
 	}
 
+	# Public Daytona model router path. The router service validates
+	# OPENCLAW_MODEL_ROUTER_TOKEN; Caddy only exposes the narrow route and strips
+	# this public prefix before proxying to the Railway-private listener.
+	handle_path /openclaw-model-router/* {
+		reverse_proxy {
+			dynamic a {
+				name {$OPENCLAW_MODEL_ROUTER_DOMAIN:daytona-openclaw.railway.internal}
+				port {$OPENCLAW_MODEL_ROUTER_PORT:18791}
+				refresh 1s
+				dial_timeout 30s
+				versions ipv4 ipv6
+			}
+
+			import lb_settings
+			import passive_health_checks
+			header_up Host {upstream_hostport}
+		}
+	}
+
 	handle /agent/* {
 		reverse_proxy {
 			dynamic a {
