@@ -74,7 +74,12 @@ Optional model-router route variables:
 ```env
 OPENCLAW_MODEL_ROUTER_DOMAIN=daytona-openclaw.railway.internal
 OPENCLAW_MODEL_ROUTER_PORT=18791
+OPENCLAW_MODEL_ROUTER_PUBLIC_HOST=<optional Railway-generated host for Daytona VM calls>
 ```
+
+When `OPENCLAW_MODEL_ROUTER_PUBLIC_HOST` is set, that host only serves
+`/openclaw-model-router/*`; all other paths return `404` so the alternate
+Railway domain does not bypass Cloudflare Access for the Studio UI/API.
 
 If Daytona returns different preview tokens for each port, use these instead of
 the shared `DAYTONA_PREVIEW_TOKEN`:

@@ -89,6 +89,14 @@
 		}
 	}
 
+	# If we attach a Railway-provided public host for Daytona VM model calls,
+	# keep that host scoped to the model-router path only. The normal Studio UI
+	# and API stay available only through the Cloudflare-protected hostname.
+	@model_router_public_host header Host {$OPENCLAW_MODEL_ROUTER_PUBLIC_HOST:openclaw-model-router-host-not-configured}
+	handle @model_router_public_host {
+		respond "not found" 404
+	}
+
 	handle /agent/* {
 		reverse_proxy {
 			dynamic a {
