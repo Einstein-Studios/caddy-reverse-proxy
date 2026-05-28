@@ -8,11 +8,18 @@ Studio OS reach a Daytona sandbox without Tailscale.
 
 ### [View the example public project here](https://railway.app/project/35d8d571-4313-4049-9699-4e7db7f02a2f) - Utilizes sleeping frontend and backend services with wake via the private network
 
-Access the frontend from `/*` and access the backend from `/api/*` on the same domain
+Access the frontend from `/*` and access the backend from `/api/*` on the same domain.
+The proxy preserves the `/api` prefix when forwarding to the backend. For
+Studio OS, browser auth endpoints under `/auth/*` are also forwarded to the
+backend unchanged.
 
 **Frontend - Vue 3:** https://mysite.up.railway.app/
 
 **Backend - Go Mux:** https://mysite.up.railway.app/api/
+
+Do not configure clients to compensate for prefix stripping with paths such as
+`/api/api/...`; the backend must see the same `/api/...` path that public
+callers use.
 
 The proxy configurations are done in the [`Caddyfile`](https://github.com/brody192/reverse-proxy/blob/main/Caddyfile) everything is commented for your ease of use!
 

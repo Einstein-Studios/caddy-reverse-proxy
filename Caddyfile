@@ -129,7 +129,25 @@
 		}
 	}
 
-	handle_path {$BACKEND_PATH:/api}/* {
+	# Preserve the /api prefix. The API process mounts its routes at /api, and
+	# JWT-scoped agent callbacks must see the same path public callers use.
+	handle {$BACKEND_PATH:/api}/* {
+		reverse_proxy {
+			dynamic a {
+				name {$BACKEND_DOMAIN}
+				port {$BACKEND_PORT}
+				refresh 1s
+				dial_timeout 30s
+				versions ipv4 ipv6
+			}
+
+			import lb_settings
+			import passive_health_checks
+			header_up Host {upstream_hostport}
+		}
+	}
+
+	handle /auth/* {
 		reverse_proxy {
 			dynamic a {
 				name {$BACKEND_DOMAIN}
