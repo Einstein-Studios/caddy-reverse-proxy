@@ -129,26 +129,6 @@
 		}
 	}
 
-	# Collab's agent-facing HTTP surface mounts at /api/v1 (see
-	# studio-os/packages/collab/src/api/server.ts). studio-os's API never
-	# claims /api/v1, so we can carve that prefix off for collab. MUST stay
-	# above the generic /api/* handle below — Caddy matches handlers in order.
-	handle /api/v1/* {
-		reverse_proxy {
-			dynamic a {
-				name {$COLLAB_DOMAIN}
-				port {$COLLAB_PORT}
-				refresh 1s
-				dial_timeout 30s
-				versions ipv4 ipv6
-			}
-
-			import lb_settings
-			import passive_health_checks
-			header_up Host {upstream_hostport}
-		}
-	}
-
 	# Preserve the /api prefix. The API process mounts its routes at /api, and
 	# JWT-scoped agent callbacks must see the same path public callers use.
 	handle {$BACKEND_PATH:/api}/* {
