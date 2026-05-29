@@ -133,11 +133,16 @@
 	# studio-os/packages/collab/src/api/server.ts). studio-os's API never
 	# claims /api/v1, so we can carve that prefix off for collab. MUST stay
 	# above the generic /api/* handle below — Caddy matches handlers in order.
+	#
+	# NOTE: collab's HTTP /api/v1 listener is a DIFFERENT port from its
+	# Hocuspocus WebSocket listener used by /ws/doc/*. The WS route above
+	# uses COLLAB_PORT (Hocuspocus, default 3001 in collab). The HTTP API
+	# uses COLLAB_API_PORT (default 3003). Same domain, different port.
 	handle /api/v1/* {
 		reverse_proxy {
 			dynamic a {
 				name {$COLLAB_DOMAIN}
-				port {$COLLAB_PORT}
+				port {$COLLAB_API_PORT:3003}
 				refresh 1s
 				dial_timeout 30s
 				versions ipv4 ipv6
